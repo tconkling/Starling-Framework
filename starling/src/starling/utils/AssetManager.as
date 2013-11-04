@@ -699,7 +699,7 @@ package starling.utils
             else if (rawAsset is String)
             {
                 var url:String = rawAsset as String;
-                extension = url.split(".").pop().toLowerCase().split("?")[0];
+                extension = url.split("?")[0].split(".").pop().toLowerCase();
                 
                 urlLoader = new URLLoader();
                 urlLoader.dataFormat = URLLoaderDataFormat.BINARY;
@@ -777,6 +777,7 @@ package starling.utils
             {
                 name = rawAsset is String ? rawAsset as String : (rawAsset as FileReference).name;
                 name = name.replace(/%20/g, " "); // URLs use '%20' for spaces
+                name = name.split("?")[0]; // remove URL parameters like "?v=123"
                 matches = /(.*[\\\/])?(.+)(\.[\w]{1,4})/.exec(name);
                 
                 if (matches && matches.length == 4) return matches[2];
