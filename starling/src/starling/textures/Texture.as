@@ -102,8 +102,6 @@ package starling.textures
      */ 
     public class Texture
     {
-        private var mRepeat:Boolean;
-        
         /** @private */
         public function Texture()
         {
@@ -112,8 +110,6 @@ package starling.textures
             {
                 throw new AbstractClassError();
             }
-            
-            mRepeat = false;
         }
         
         /** Disposes the underlying texture data. Note that not all textures need to be disposed: 
@@ -123,6 +119,43 @@ package starling.textures
         public function dispose():void
         { 
             // override in subclasses
+        }
+        
+        /** Creates a texture object from any of the supported data types, using the specified
+         *  options.
+         * 
+         *  @param data:    Either an embedded asset class, a Bitmap, BitmapData, or a ByteArray
+         *                  with ATF data.
+         *  @param options: Specifies options about the texture settings, e.g. scale factor.
+         */
+        public static function fromData(data:Object, options:TextureOptions=null):Texture
+        {
+            var texture:Texture = null;
+            
+            if (data is Bitmap)  data = (data as Bitmap).bitmapData;
+            if (options == null) options = new TextureOptions();
+            
+            if (data is Class)
+            {
+                texture = fromEmbeddedAsset(data as Class,
+                    options.mipMapping, options.optimizeForRenderToTexture, options.scale,
+                    options.format, options.repeat);
+            }
+            else if (data is BitmapData)
+            {
+                texture = fromBitmapData(data as BitmapData,
+                    options.mipMapping, options.optimizeForRenderToTexture, options.scale,
+                    options.format, options.repeat);
+            }
+            else if (data is ByteArray)
+            {
+                texture = fromAtfData(data as ByteArray,
+                    options.scale, options.mipMapping, options.onReady, options.repeat);
+            }
+            else
+                throw new ArgumentError("Unsupported 'data' type: " + getQualifiedClassName(data));
+            
+            return texture;
         }
         
         /** Creates a texture object from an embedded asset class. Textures created with this
