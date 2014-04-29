@@ -48,6 +48,7 @@ package starling.core
     import starling.utils.HAlign;
     import starling.utils.SystemUtil;
     import starling.utils.VAlign;
+    import starling.utils.execute;
     
     /** Dispatched when a new render context is created. */
     [Event(name="context3DCreate", type="starling.events.Event")]
@@ -175,7 +176,7 @@ package starling.core
     public class Starling extends EventDispatcher
     {
         /** The version of the Starling framework. */
-        public static const VERSION:String = "1.4.1";
+        public static const VERSION:String = "1.5";
         
         /** The key for the shader programs stored in 'contextData' */
         private static const PROGRAM_DATA_NAME:String = "Starling.programs"; 
@@ -342,10 +343,7 @@ package starling.core
             {
                 // Per default, the context is recreated as long as there are listeners on it.
                 // Beginning with AIR 3.6, we can avoid that with an additional parameter.
-                
-                var disposeContext3D:Function = mContext.dispose;
-                if (disposeContext3D.length == 1) disposeContext3D(false);
-                else disposeContext3D();
+                execute(mContext.dispose, false);
             }
 
             var index:int =  sAll.indexOf(this);
@@ -389,7 +387,7 @@ package starling.core
                     profiles.sort(compareProfiles);
                     
                     mProfile = profiles[profiles.length-1];
-                    stage3D.requestContext3D(renderMode, mProfile);
+                    execute(stage3D.requestContext3D, renderMode, mProfile);
                 }
                 else
                 {
