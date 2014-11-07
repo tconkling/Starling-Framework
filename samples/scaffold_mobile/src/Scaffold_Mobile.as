@@ -14,6 +14,7 @@ package
     import starling.utils.AssetManager;
     import starling.utils.RectangleUtil;
     import starling.utils.ScaleMode;
+    import starling.utils.SystemUtil;
     import starling.utils.formatString;
     
     [SWF(frameRate="30", backgroundColor="#000")]
@@ -39,10 +40,9 @@ package
             
             var stageWidth:int   = Constants.STAGE_WIDTH;
             var stageHeight:int  = Constants.STAGE_HEIGHT;
-            var iOS:Boolean = Capabilities.manufacturer.indexOf("iOS") != -1;
             
-            Starling.multitouchEnabled = true;  // useful on mobile devices
-            Starling.handleLostContext = !iOS;  // not necessary on iOS. Saves a lot of memory!
+            Starling.multitouchEnabled = true; // useful on mobile devices
+            Starling.handleLostContext = true; // recommended everywhere when using AssetManager
             
             // create a suitable viewport for the screen size
             // 
@@ -113,13 +113,15 @@ package
                 });
             
             // When the game becomes inactive, we pause Starling; otherwise, the enter frame event
-            // would report a very long 'passedTime' when the app is reactivated. 
-            
-            NativeApplication.nativeApplication.addEventListener(
-                flash.events.Event.ACTIVATE, function (e:*):void { mStarling.start(); });
-            
-            NativeApplication.nativeApplication.addEventListener(
-                flash.events.Event.DEACTIVATE, function (e:*):void { mStarling.stop(true); });
+            // would report a very long 'passedTime' when the app is reactivated.
+
+            if (!SystemUtil.isDesktop)
+            {
+                NativeApplication.nativeApplication.addEventListener(
+                    flash.events.Event.ACTIVATE, function (e:*):void { mStarling.start(); });
+                NativeApplication.nativeApplication.addEventListener(
+                    flash.events.Event.DEACTIVATE, function (e:*):void { mStarling.stop(true); });
+            }
         }
     }
 }

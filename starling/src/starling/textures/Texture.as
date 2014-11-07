@@ -1,7 +1,7 @@
 // =================================================================================================
 //
 //	Starling Framework
-//	Copyright 2011 Gamua OG. All Rights Reserved.
+//	Copyright 2011-2014 Gamua. All Rights Reserved.
 //
 //	This program is free software. You can redistribute and/or modify it
 //	in accordance with the terms of the accompanying license agreement.
@@ -295,7 +295,7 @@ package starling.textures
          *  
          *  @param width:  in points; number of pixels depends on scale parameter
          *  @param height: in points; number of pixels depends on scale parameter
-         *  @param color:  expected in ARGB format (inlude alpha!)
+         *  @param color:  expected in ARGB format (include alpha!)
          *  @param optimizeForRenderToTexture: indicates if this texture will be used as render target
          *  @param scale:  if you omit this parameter, 'Starling.contentScaleFactor' will be used.
          *  @param format: the context3D texture format to use. Pass one of the packed or
@@ -383,7 +383,16 @@ package starling.textures
         }
         
         /** Creates a texture that contains a region (in pixels) of another texture. The new
-         *  texture will reference the base texture; no data is duplicated. */
+         *  texture will reference the base texture; no data is duplicated.
+         *
+         *  @param texture: The texture you want to create a SubTexture from.
+         *  @param region:  The region of the parent texture that the SubTexture will show
+         *                  (in points).
+         *  @param frame:   If the texture was trimmed, the frame rectangle can be used to restore
+         *                  the trimmed area.
+         *  @param rotated: If true, the SubTexture will show the parent region rotated by
+         *                  90 degrees (CCW).
+         */
         public static function fromTexture(texture:Texture, region:Rectangle=null,
                                            frame:Rectangle=null, rotated:Boolean=false):Texture
         {
