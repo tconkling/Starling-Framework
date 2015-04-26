@@ -38,6 +38,7 @@ package starling.display
      *    <li>rotationX — Rotates the sprite around the x-axis.</li>
      *    <li>rotationY — Rotates the sprite around the y-axis.</li>
      *    <li>scaleZ - Scales the sprite along the z-axis.</li>
+     *    <li>pivotZ - Moves the pivot point along the z-axis.</li>
      *  </ul>
      *
      *  <p>With the help of these properties, you can move a sprite and all its children in the
@@ -60,7 +61,7 @@ package starling.display
      *  applied to a Sprite3D object cannot be cached.</p>
      *
      *  <p>On rendering, each Sprite3D requires its own draw call — except if the object does not
-     *  contain any 3D transformations ('z', 'rotationX' and 'rotationY' are zero).</p>
+     *  contain any 3D transformations ('z', 'rotationX/Y' and 'pivotZ' are zero).</p>
      *
      */
     public class Sprite3D extends DisplayObjectContainer
@@ -98,7 +99,7 @@ package starling.display
         /** @inheritDoc */
         public override function render(support:RenderSupport, parentAlpha:Number):void
         {
-            if (is2D) super.render(support, parentAlpha)
+            if (is2D) super.render(support, parentAlpha);
             else
             {
                 support.finishQuadBatch();
@@ -166,13 +167,28 @@ package starling.display
 
         private function updateMatrices():void
         {
+            var x:Number = this.x;
+            var y:Number = this.y;
+            var scaleX:Number = this.scaleX;
+            var scaleY:Number = this.scaleY;
+            var pivotX:Number = this.pivotX;
+            var pivotY:Number = this.pivotY;
+            var rotationZ:Number = this.rotation;
+
             mTransformationMatrix3D.identity();
-            mTransformationMatrix3D.appendScale(scaleX || E , scaleY || E, mScaleZ || E);
-            mTransformationMatrix3D.appendRotation(rad2deg(mRotationX), Vector3D.X_AXIS);
-            mTransformationMatrix3D.appendRotation(rad2deg(mRotationY), Vector3D.Y_AXIS);
-            mTransformationMatrix3D.appendRotation(rad2deg( rotation ), Vector3D.Z_AXIS);
-            mTransformationMatrix3D.appendTranslation(x, y, mZ);
-            mTransformationMatrix3D.prependTranslation(-pivotX, -pivotY, -mPivotZ);
+
+            if (scaleX != 1.0 || scaleY != 1.0 || mScaleZ != 1.0)
+                mTransformationMatrix3D.appendScale(scaleX || E , scaleY || E, mScaleZ || E);
+            if (mRotationX != 0.0)
+                mTransformationMatrix3D.appendRotation(rad2deg(mRotationX), Vector3D.X_AXIS);
+            if (mRotationY != 0.0)
+                mTransformationMatrix3D.appendRotation(rad2deg(mRotationY), Vector3D.Y_AXIS);
+            if (rotationZ != 0.0)
+                mTransformationMatrix3D.appendRotation(rad2deg( rotationZ), Vector3D.Z_AXIS);
+            if (x != 0.0 || y != 0.0 || mZ != 0.0)
+                mTransformationMatrix3D.appendTranslation(x, y, mZ);
+            if (pivotX != 0.0 || pivotY != 0.0 || mPivotZ != 0.0)
+                mTransformationMatrix3D.prependTranslation(-pivotX, -pivotY, -mPivotZ);
 
             if (is2D) MatrixUtil.convertTo2D(mTransformationMatrix3D, mTransformationMatrix);
             else      mTransformationMatrix.identity();
@@ -184,13 +200,14 @@ package starling.display
         {
             return mZ > -E && mZ < E &&
                 mRotationX > -E && mRotationX < E &&
-                mRotationY > -E && mRotationY < E;
+                mRotationY > -E && mRotationY < E &&
+                mPivotZ > -E && mPivotZ < E;
         }
 
         // properties
 
         /** The 2D transformation matrix of the object relative to its parent — if it can be
-         *  represented in such a matrix (the values of 'z', 'rotationX', and 'rotationY' are
+         *  represented in such a matrix (the values of 'z', 'rotationX/Y', and 'pivotZ' are
          *  zero). Otherwise, the identity matrix. CAUTION: not a copy, but the actual object! */
         public override function get transformationMatrix():Matrix
         {
@@ -238,8 +255,8 @@ package starling.display
         }
 
         /** The z coordinate of the object relative to the local coordinates of the parent.
-         *  The z-axis points into the screen, i.e. positive z-values will move the object further
-         *  away from the camera. */
+         *  The z-axis points away from the camera, i.e. positive z-values will move the object further
+         *  away from the viewer. */
         public function get z():Number { return mZ; }
         public function set z(value:Number):void
         {
